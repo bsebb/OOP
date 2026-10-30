@@ -1,0 +1,10 @@
+# Build binaries
+lab1/lab1
+lab1/main
+*.o
+*.out
+*.dSYM/
+
+# OS and editor files
+.DS_Store
+.vscode/
