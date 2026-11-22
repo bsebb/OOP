@@ -67,6 +67,14 @@ void runTests() {
     Logger::setLevel(LogLevel::INFO);
     assert(second.isValid("(())") == true);
 
+    Formatter::format = "[%t] [%l] %n: %m";
+    Logger demo("Demo");
+    demo.info("Pair found at % and %", {"3", "7"});
+    demo.info("Pair % and %", {"3"});
+    demo.info("100%% sure");
+    demo.info("Only %", {"1", "2", "3"});
+    demo.info("name in message: %n");
+
     std::cout << "All tests passed.\n";
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <initializer_list>
 #include <string>
 #include "ConsoleSink.h"
 #include "Formatter.h"
@@ -21,10 +22,10 @@ public:
 
     static void setLevel(LogLevel newLevel);
 
-    void log(LogLevel msgLevel, const std::string& message) const;
+    void log(LogLevel msgLevel, const std::string& message, std::initializer_list<std::string> args = {}) const;
 
-    void trace(const std::string& msg) const;
-    void info(const std::string& msg) const;
-    void warn(const std::string& msg) const;
-    void error(const std::string& msg) const;
+    void trace(const std::string& msg, std::initializer_list<std::string> args = {}) const;
+    void info(const std::string& msg, std::initializer_list<std::string> args = {}) const;
+    void warn(const std::string& msg, std::initializer_list<std::string> args = {}) const;
+    void error(const std::string& msg, std::initializer_list<std::string> args = {}) const;
 };
