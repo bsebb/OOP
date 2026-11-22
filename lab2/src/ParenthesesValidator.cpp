@@ -2,7 +2,8 @@
 #include "ParenthesesValidator.h"
 
 ParenthesesValidator::ParenthesesValidator() : logger("Parentheses") {}
-ParenthesesValidator::ParenthesesValidator(Logger customLogger) : logger(customLogger) {}
+// used to take a Logger by value, but copying one now copies the raw pointers too
+ParenthesesValidator::ParenthesesValidator(Formatter* f, ConsoleSink* s) : logger("Parentheses", f, s) {}
 
 bool ParenthesesValidator::isValid(const std::string& input) {
     std::vector<int> stack;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "ConsoleSink.h"
 #include "Formatter.h"
 #include "Logger.h"
 #include "ParenthesesValidator.h"
@@ -59,6 +60,12 @@ void runTests() {
     Formatter::format = "[%t] [%l] [%r] %n: %m";
     Logger::setLevel(LogLevel::TRACE);
     validator.isValid("()(");
+
+    Formatter shared("%l | %n | %m");
+    ConsoleSink sink;
+    ParenthesesValidator second(&shared, &sink);
+    Logger::setLevel(LogLevel::INFO);
+    assert(second.isValid("(())") == true);
 
     std::cout << "All tests passed.\n";
 }

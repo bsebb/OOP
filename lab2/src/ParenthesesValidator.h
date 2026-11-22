@@ -9,7 +9,7 @@ private:
 
 public:
     ParenthesesValidator();
-    ParenthesesValidator(Logger customLogger);
+    ParenthesesValidator(Formatter* f, ConsoleSink* s);
 
     bool isValid(const std::string& input);
 };
