@@ -1,20 +1,25 @@
 #pragma once
 
 #include <string>
+#include "ConsoleSink.h"
+#include "Formatter.h"
 #include "LogLevel.h"
 
 class Logger {
 private:
     std::string name;
+    Formatter* formatter;
+    ConsoleSink* sink;
+    bool ownsParts;
 
 public:
     static LogLevel level;
-    static std::string format;
 
     Logger(const std::string& loggerName);
+    Logger(const std::string& loggerName, Formatter* f, ConsoleSink* s);
+    ~Logger();
 
     static void setLevel(LogLevel newLevel);
-    static void setFormat(const std::string& newFormat);
 
     void log(LogLevel msgLevel, const std::string& message) const;
 

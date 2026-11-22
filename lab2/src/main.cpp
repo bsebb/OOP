@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "Formatter.h"
 #include "Logger.h"
 #include "ParenthesesValidator.h"
 
@@ -30,7 +31,7 @@ void runTests() {
     };
 
     Logger::setLevel(LogLevel::TRACE);
-    Logger::setFormat("[%t] [%l] %n: %m");
+    Formatter::format = "[%t] [%l] %n: %m";
 
     for (int i = 0; i < (int)cases.size(); i++) {
         bool result = validator.isValid(cases[i].input);
@@ -51,11 +52,11 @@ void runTests() {
     };
 
     for (int i = 0; i < (int)formats.size(); i++) {
-        Logger::setFormat(formats[i]);
+        Formatter::format = formats[i];
         assert(validator.isValid("()") == true);
     }
 
-    Logger::setFormat("[%t] [%l] [%r] %n: %m");
+    Formatter::format = "[%t] [%l] [%r] %n: %m";
     Logger::setLevel(LogLevel::TRACE);
     validator.isValid("()(");
 
