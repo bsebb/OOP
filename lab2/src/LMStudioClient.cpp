@@ -89,6 +89,10 @@ LMResponse LMStudioClient::send(const std::vector<Message>& msgs) {
     std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
 
     FILE* pipe = popen(cmd.c_str(), "r");
+    if (pipe == nullptr) {
+        logger.error("Could not start curl");
+        return r;
+    }
     std::string out = "";
     char buffer[512];
     while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
@@ -99,11 +103,31 @@ LMResponse LMStudioClient::send(const std::vector<Message>& msgs) {
     std::chrono::steady_clock::time_point stop = std::chrono::steady_clock::now();
     r.seconds = std::chrono::duration<double>(stop - start).count();
 
+    if (out.empty()) {
+        logger.error("curl returned nothing, is LM Studio running on port 1234?");
+        return r;
+    }
+
+    // the substr below used to throw out_of_range when the server was off
     size_t pos = out.find("\"message\"");
-    std::string rest = out.substr(pos);
-    pos = rest.find("\"content\":");
-    r.text = readString(rest, pos + 10);
-    r.promptTokens = readNumber(out, "prompt_tokens");
-    r.completionTokens = readNumber(out, "completion_tokens");
+    if (pos == std::string::npos) {
+        logger.error("Could not read the answer: %", {out.substr(0, 200)});
+        return r;
+    }
+
+    try {
+        std::string rest = out.substr(pos);
+        pos = rest.find("\"content\":");
+        if (pos != std::string::npos) {
+            r.text = readString(rest, pos + 10);
+        }
+        r.promptTokens = readNumber(out, "prompt_tokens");
+        r.completionTokens = readNumber(out, "completion_tokens");
+    } catch (std::exception& e) {
+        logger.error("Could not read the answer: %", {e.what()});
+    }
+    if (r.text.empty()) {
+        logger.error("Answer had no text in it");
+    }
     return r;
 }
