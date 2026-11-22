@@ -4,10 +4,14 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "Agent.h"
 #include "ConsoleSink.h"
 #include "Formatter.h"
+#include "LMStudioClient.h"
 #include "Logger.h"
+#include "Memory.h"
 #include "ParenthesesValidator.h"
+#include "Toolbox.h"
 
 struct TestCase {
     std::string input;
@@ -79,6 +83,60 @@ void runTests() {
 }
 
 int main() {
-    runTests();
+    Formatter fmt("[%t] [%l] %n: %m");
+    ConsoleSink sink;
+    Logger::setLevel(LogLevel::TRACE);
+
+    std::string line;
+    std::cout << "Memory tier (1, 2 or 3): ";
+    std::getline(std::cin, line);
+    int capacity = Memory::tier1();
+    if (line == "2") {
+        capacity = Memory::tier2();
+    } else if (line == "3") {
+        capacity = Memory::tier3();
+    }
+    std::cout << "Memory holds " << capacity << " messages. Type quit to stop.\n";
+
+    Memory memory(capacity);
+    LMStudioClient client;
+    Toolbox toolbox;
+    Agent agent("Pip", "a friendly helper who keeps answers short", &memory, &client, &toolbox, &fmt, &sink);
+
+    while (std::getline(std::cin, line)) {
+        if (line == "quit") {
+            break;
+        }
+        if (line.empty()) {
+            continue;
+        }
+
+        // commands for testing, everything else goes to the agent
+        if (line[0] == '/') {
+            if (line == "/test") {
+                runTests();
+                Formatter::format = "[%t] [%l] %n: %m";
+                Logger::setLevel(LogLevel::TRACE);
+            } else if (line == "/level trace") {
+                Logger::setLevel(LogLevel::TRACE);
+            } else if (line == "/level info") {
+                Logger::setLevel(LogLevel::INFO);
+            } else if (line == "/level warn") {
+                Logger::setLevel(LogLevel::WARN);
+            } else if (line == "/level error") {
+                Logger::setLevel(LogLevel::ERROR);
+            } else {
+                std::cout << "Unknown command\n";
+            }
+            continue;
+        }
+
+        std::string answer = agent.chat(line);
+        if (answer.empty()) {
+            std::cout << "Pip: (no answer, check the log)\n";
+        } else {
+            std::cout << "Pip: " << answer << "\n";
+        }
+    }
     return 0;
 }
